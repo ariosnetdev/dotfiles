@@ -1,28 +1,32 @@
 return {
-    'nvim-treesitter/nvim-treesitter',
-    lazy = false,
-    branch = 'main',
-    build = ':TSUpdate',
+    "nvim-treesitter/nvim-treesitter",
+	branch = 'master',
+	lazy = false,
+	build = ":TSUpdate",
     config = function()
-        local treesitter = require 'nvim-treesitter'
-        treesitter.setup()
-        treesitter.install {
-            "javascript",
-            "typescript",
-            "go",
-            "markdown",
-            "markdown_inline",
-            "lua",
-            "c",
-            "bash",
-            "yaml",
-            "json"
+        require'nvim-treesitter.configs'.setup {
+            ensure_installed = {
+                "c",
+                "javascript",
+                "typescript",
+                "tsx",
+                "bash",
+                "json",
+                "lua",
+                "go",
+                "rust",
+                "markdown",
+                "markdown_inline"
+            },
+
+            -- Automatically install missing parsers when entering buffer
+            -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+            auto_install = true,
+
+            highlight = {
+                enable = true,
+                additional_vim_regex_highlighting = false,
+            },
         }
-        vim.api.nvim_create_autocmd('FileType', {
-          pattern = { 'javascript,javascriptreact,typescript,typescriptreact,lua,c,go,bash,yaml,json,markdown' },
-          callback = function()
-              vim.treesitter.start()
-          end,
-        })
     end
 }
