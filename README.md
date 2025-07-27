@@ -9,7 +9,7 @@
 we use ansible to install dependencies and template out the home folder.
 the output of the ansible run will then be put in ./home-dist.
 
-From here the playbok will use (Gnu stow)[https://www.gnu.org/software/stow/] to symlink dotfiles into the home folder
+trom here the playbok will use [Gnu stow](https://www.gnu.org/software/stow/) to symlink dotfiles into the home folder
 
 ### ensure ansible set up is ready
 
