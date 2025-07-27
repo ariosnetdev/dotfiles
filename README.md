@@ -1,6 +1,46 @@
-# Fresh Mac book install
+# Dot files
 
-## .dmg and .pkgs
+- `common` -> common configs that can be re-used across machines
+- `arch` -> arch specific configs
+- `mac` -> mac specific configs
+
+## General Usage
+
+we use ansible to install dependencies and template out the home folder.
+the output of the ansible run will then be put in ./home-dist.
+
+From here the playbok will use (Gnu stow)[https://www.gnu.org/software/stow/] to symlink dotfiles into the home folder
+
+### ensure ansible set up is ready
+
+- `./assert_ansible.sh`
+
+### run playbook
+
+```sh
+$ ansible-playbook --diff -c localhost playbook.yml -v
+```
+
+### other playbook runs
+
+```sh
+# update home-dist folder with any new configs
+$ ansible-playbook --diff -c localhost playbook.yml -v --tags dotfiles
+
+# rerun the dotfiles configuration and stow
+$ ansible-playbook --diff -c localhost playbook.yml -v --tags dotfiles,stow
+```
+
+### Dependencies to track
+
+* zinit - https://github.com/zdharma-continuum/zinit
+* tpm - https://github.com/tmux-plugins/tpm
+
+Ideally I think these should be checked out / installed as part of the ansible run
+
+## Fresh Mac book install
+
+### .dmg and .pkgs
 
 We install these manually
 
@@ -10,20 +50,5 @@ We install these manually
 - https://slack.com/downloads/instructions/mac?ddl=1&build=mac
 
 
-## set up ansible
 
-- `./assert_ansible.sh`
-
-## run playbook
-
-```sh
-$ ansible-playbook --diff -c localhost playbook.yml -v
-```
-
-## Dependencies to track
-
-* zinit - https://github.com/zdharma-continuum/zinit
-* tpm - https://github.com/tmux-plugins/tpm
-
-plan should be to mirror these into a charter git at some point
 
