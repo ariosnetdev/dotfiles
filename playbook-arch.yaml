@@ -53,7 +53,8 @@
         typescript-language-server \
         vscode-langservers-extracted \
         emmet-ls \
-        tree-sitter-cli
+        tree-sitter-cli \
+        bun
 
 - name: LazyGit
   hosts: localhost
