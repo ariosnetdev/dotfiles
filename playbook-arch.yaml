@@ -1,0 +1,126 @@
+- name: Installing packages
+  become: true
+  hosts: localhost
+  tags:
+    - dependencies
+  tasks:
+  - name: pkg install 
+    pacman:
+      name:
+      - fzf
+      - ripgrep
+      - fd
+      - stow
+      - tmux
+      - rustup
+      - go
+      - lua-language-server
+      - gnupg
+      - pass
+      - fnm
+      update_cache: true
+  - name: install fonts
+    command: echo "install fonts here"
+
+- name: Configure Node + Language Servers
+  hosts: localhost
+  tags:
+    - node
+  vars:
+    HOME: "{{ lookup('env', 'HOME') }}"
+  tasks:
+    - name: ensure rustup
+      command: rustup default stable
+
+    - name: ensure cargo dir
+      file:
+        path: "{{HOME}}/.local/cargo"
+        state: directory
+        mode: '0755'
+
+    - name: Install fnm (using Cargo lol)
+      community.general.cargo:
+        path: ~/.local/cargo
+        name: fnm
+
+    - name: Install Node
+      shell: ~/.local/cargo/bin/fnm install 24
+
+    - name: Install language servers
+      shell: |
+        eval "$(~/.local/cargo/bin/fnm env --shell zsh)"
+        npm install -g typescript \
+        typescript-language-server \
+        vscode-langservers-extracted \
+        emmet-ls \
+        tree-sitter-cli
+
+- name: LazyGit
+  hosts: localhost
+  tags:
+    - dependencies
+  tasks:
+    - name: clone repo
+      git:
+        repo: "https://github.com/jesseduffield/lazygit.git"
+        dest: "./git-repos/lazygit"
+
+    - name: ensure go dir
+      file:
+        path: "{{HOME}}/.local/go"
+        state: directory
+        mode: '0755'
+
+    - name: install
+      shell: 
+        cmd: |
+          export GOPATH=${HOME}/.local/go 
+          go install
+
+- name: Configure all dotfiles
+  hosts: localhost
+  vars:
+    is_arch_personal: true
+  tags:
+    - dotfiles
+  tasks:
+    - name: copy arch structure
+      copy:
+        src: "arch/"
+        dest: "./home-dist/"
+
+    - name: copy common structure
+      copy:
+        src: "common/"
+        dest: "./home-dist/"
+
+    - name: template config files
+      template:
+        src: "{{item.src}}"
+        dest: "{{item.src}}"
+      with_community.general.filetree:
+        - home-dist/
+      when: item.state == 'file'
+
+- name: Stow all the things
+  hosts: localhost
+  tags:
+    - stow
+  vars:
+    HOME: "{{ lookup('env', 'HOME') }}"
+  tasks:
+  - name: stow dotfiles in the home directory
+    command:
+      cmd: "stow -vR -t {{HOME}} home-dist"
+
+- name: Unstow all the things
+  hosts: localhost
+  tags:
+    - never
+    - unstow
+  vars:
+    HOME: "{{ lookup('env', 'HOME') }}"
+  tasks:
+  - name: stow dotfiles in the home directory
+    command:
+      cmd: "stow -vRD -t {{HOME}} home-dist"

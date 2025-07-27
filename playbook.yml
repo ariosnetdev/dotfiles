@@ -1,0 +1,75 @@
+- name: Install Brew packages
+  hosts: localhost
+  tags:
+    - dependencies
+  tasks:
+  - name: Install homebrew pkgs
+    homebrew:
+      name:
+      - kubectl
+      - kubie
+      - neovim
+      - fzf
+      - ripgrep
+      - fd
+      - stow
+      - tmux
+      - helm
+      - fnm
+      - lua-language-server
+      - lazygit
+      - gpg
+      - pass
+      - mvn
+
+  - name: Install Brew Casks
+    homebrew_cask:
+      name:
+      - zulu@21
+      - font-monaspace
+      - font-monaspace-nerd-font
+
+- name: Configure dotfiles
+  hosts: localhost
+  tags:
+    - dotfiles
+  vars:
+    HOME: "{{ lookup('env', 'HOME') }}"
+  tasks:
+  - name: stow dotfiles in the home directory
+    command:
+      cmd: "stow -vR -t {{HOME}} home"
+
+- name: Configure Node
+  hosts: localhost
+  tags:
+    - node
+  tasks:
+  - name: Install 24
+    command: fnm install 24
+
+  - name: Install Typescript
+    npm: 
+      name: typescript
+      global: true 
+
+  - name: Install Typescript language server
+    npm: 
+      name: typescript-language-server
+      global: true 
+
+  - name: Install extracted vscode lang servers
+    npm:
+      name: vscode-langservers-extracted
+      global: true
+
+  - name: Install Emmet ls
+    npm: 
+      name: emmet-ls
+      global: true 
+
+  - name: Install tree sitter CLI for neovim
+    npm: 
+      name: tree-sitter-cli
+      global: true 
+
