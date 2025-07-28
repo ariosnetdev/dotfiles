@@ -3,6 +3,7 @@ vim.lsp.enable('lua_ls')
 vim.lsp.enable('emmet_ls')
 vim.lsp.enable('json_ls')
 vim.lsp.enable('html_ls')
+vim.lsp.enable('clangd_ls')
 
 vim.diagnostic.config({ virtual_text = true })
 
